@@ -1,5 +1,33 @@
-use anyhow::{anyhow, Result};
+use std::path::PathBuf;
 
+use anyhow::{anyhow, Context, Result};
+
+use crate::opts::Opts;
+
+#[derive(Debug)]
+pub struct Config {
+    operation: Operation,
+    pwd: PathBuf,
+    config: PathBuf,
+}
+
+impl TryFrom<Opts> for Config {
+    type Error = anyhow::Error;
+
+    fn try_from(value: Opts) -> Result<Self> {
+        let operation = value.args.try_into()?;
+        let config = get_config(value.config)?;
+        let pwd = get_config(value.pwd)?;
+
+        return Ok(Config {
+            operation,
+            config,
+            pwd,
+        });
+    }
+}
+
+#[derive(Debug)]
 pub enum Operation {
     Print(Option<String>),
     Add(String, String),
@@ -55,4 +83,26 @@ impl TryFrom<Vec<String>> for Operation {
         let arg = value.pop().expect("to exist");
         return Ok(Operation::Print(Some(arg)));
     }
+}
+
+fn get_config(config: Option<PathBuf>) -> Result<PathBuf> {
+    if let Some(v) = config {
+        return Ok(v);
+    }
+
+    let loc = std::env::var("XDG_CONFIG_HOME").context("unable to get XDG_CONFIG_HOME")?;
+    let mut loc = PathBuf::from(loc);
+
+    loc.push("projector");
+    loc.push("projector.json");
+
+    return Ok(loc);
+}
+
+fn get_pwd(pwd: Option<PathBuf>) -> Result<PathBuf> {
+    if let Some(pwd) = pwd {
+        return Ok(pwd);
+    }
+
+    return Ok(std::env::current_dir().context("errored getting current_dir")?);
 }
