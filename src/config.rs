@@ -6,9 +6,9 @@ use crate::opts::Opts;
 
 #[derive(Debug)]
 pub struct Config {
-    operation: Operation,
-    pwd: PathBuf,
-    config: PathBuf,
+    pub operation: Operation,
+    pub pwd: PathBuf,
+    pub config: PathBuf,
 }
 
 impl TryFrom<Opts> for Config {
@@ -90,7 +90,10 @@ fn get_config(config: Option<PathBuf>) -> Result<PathBuf> {
         return Ok(v);
     }
 
-    let loc = std::env::var("XDG_CONFIG_HOME").context("unable to get XDG_CONFIG_HOME")?;
+    let mut loc = std::env::var("XDG_CONFIG_HOME").context("unable to get XDG_CONFIG_HOME")?;
+    if loc == "" {
+        loc = String::from("/home/vortex/.config");
+    }
     let mut loc = PathBuf::from(loc);
 
     loc.push("projector");
