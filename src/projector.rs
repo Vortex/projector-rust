@@ -4,8 +4,6 @@ use std::{collections::HashMap, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::Config;
-
 #[derive(Debug, Serialize, Deserialize)]
 struct Data {
     pub projector: HashMap<PathBuf, HashMap<String, String>>,
@@ -83,7 +81,7 @@ impl Projector {
         }
 
         let contents = serde_json::to_string(&self.data)?;
-        std::fs::write(&self.config, contents);
+        std::fs::write(&self.config, contents)?;
 
         return Ok(());
     }
@@ -112,7 +110,6 @@ mod test {
 
     use collection_macros::hashmap;
 
-    use crate::config::{Config, Operation};
     use crate::projector::Data;
 
     use super::Projector;

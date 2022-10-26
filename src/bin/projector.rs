@@ -18,7 +18,7 @@ fn main() -> Result<()> {
             println!("{}", value);
         }
         Operation::Print(Some(k)) => {
-            let value = proj.get_value(&k).map(|x| {
+            let _value = proj.get_value(&k).map(|x| {
                 println!("{}", x);
             });
         }
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
         }
         Operation::Remove(k) => {
             proj.remove_value(&k);
-            proj.save();
+            proj.save()?;
         }
     }
 
